@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - Price Monitor{% endblock %}
+{% block nav_add %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card slide-up">
+            <div class="card-body p-4 p-lg-5">
+                <div class="text-center mb-4">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary d-inline-flex mb-3" style="width:56px;height:56px;font-size:1.5rem;">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <h3 class="fw-bold">Add New Product</h3>
+                    <p class="text-muted">Set up a new product and competitor to monitor pricing.</p>
+                </div>
+
+                {% if errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Please fix the following:</strong>
+                    <ul class="mb-0 mt-1">
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form method="POST" id="addProductForm" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Product Details -->
+                    <div class="border rounded-3 p-3 p-lg-4 mb-4 bg-light bg-opacity-50">
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3">
+                            <i class="bi bi-box-seam me-1"></i>Product Details
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Product Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                    <input type="text" name="name" class="form-control" placeholder="e.g., iPhone 15 Pro" required id="inputName">
+                                </div>
+                                <div class="invalid-feedback">Product name is required.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Target Price ($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-currency-dollar"></i></span>
+                                    <input type="number" step="0.01" min="0" name="target_price" class="form-control" placeholder="e.g., 999.00" required id="inputPrice">
+                                </div>
+                                <div class="invalid-feedback">Enter a valid target price.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor Details -->
+                    <div class="border rounded-3 p-3 p-lg-4 mb-4 bg-light bg-opacity-50">
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3">
+                            <i class="bi bi-shop me-1"></i>Competitor Details
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Competitor Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                    <input type="text" name="competitor_name" class="form-control" placeholder="e.g., Amazon" required id="inputCompetitor">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Product URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                                    <input type="url" name="url" class="form-control" placeholder="https://..." required id="inputUrl">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Price CSS Selector</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-code-slash"></i></span>
+                                    <input type="text" name="selector" class="form-control" placeholder=".price, #price-value, span.a-price-whole" required id="inputSelector">
+                                </div>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    The CSS selector used to extract the price from the competitor's webpage.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex flex-wrap gap-3 justify-content-between">
+                        <a href="/" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-pm px-4" id="submitBtn">
+                            <i class="bi bi-check-lg me-1"></i>Add Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('addProductForm');
+    var submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
+        var inputs = form.querySelectorAll('[required]');
+        var valid = true;
+
+        inputs.forEach(function(input) {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                valid = false;
+            } else {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            window.showToast('Please fill in all required fields.', 'danger');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Adding...';
+    });
+
+    form.querySelectorAll('input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+
+        input.addEventListener('focus', function() {
+            this.closest('.input-group').style.boxShadow = '0 0 0 3px rgba(79,70,229,.15)';
+            this.closest('.input-group').style.borderRadius = '8px';
+        });
+
+        input.addEventListener('blur', function() {
+            this.closest('.input-group').style.boxShadow = 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: price-monitor
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn price_monitor.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: price-monitor-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+
+databases:
+  - name: price-monitor-db
+    plan: free
+    databaseName: price_monitor

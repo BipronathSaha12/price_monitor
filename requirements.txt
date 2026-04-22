@@ -1,0 +1,10 @@
+Django>=5.1,<7.0
+djangorestframework>=3.15
+beautifulsoup4>=4.12
+requests>=2.31
+apscheduler>=3.10
+twilio>=9.0
+gunicorn>=21.2
+whitenoise>=6.5
+dj-database-url>=2.1
+psycopg2-binary>=2.9
