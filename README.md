@@ -225,4 +225,4 @@ Set these in a `.env` file or in your hosting platform's dashboard:
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the [MIT License](https://github.com/BipronathSaha12/price_monitor/blob/main/LICENSE).
